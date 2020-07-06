@@ -18,7 +18,7 @@
         <div class="required unsatisfied">尚缺乏的</div>
         <div class="partial">部分满足建造条件的</div>
         <div class="owned">已有的</div>
-        <div class="targeted">建造目标</div>
+        <div><span class="targeted" style="border-width: 1px; border-style: solid">建造目标</span></div>
         <div class="highlighted"><span>与点击产物相关的</span></div>
       </div>
     </div>

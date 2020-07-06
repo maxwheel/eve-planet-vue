@@ -13,9 +13,9 @@
             <div class="products-status-wrapper flex-row align-items-center">
               <div class="status-title">已有: {{ ownedProductNames.length }}个</div>
               <div>
-                <v-chip-group>
-                  <v-chip v-for="name in ownedProductNames" :key="name">
-                    {{ JSON.stringify(name) }}
+                <v-chip-group column>
+                  <v-chip v-for="name in ownedProductNames" :key="name" close @click:close="toggleOwned(name)">
+                    {{ name }}
                   </v-chip>
                 </v-chip-group>
               </div>
@@ -24,7 +24,7 @@
             <div class="products-status-wrapper flex-row align-items-center">
               <div class="status-title">可造: {{ satisfiedProductNames.length }}个</div>
               <div>
-                <v-chip-group>
+                <v-chip-group column>
                   <v-chip v-for="name in satisfiedProductNames" :key="name">
                     {{ name }}
                   </v-chip>
@@ -35,8 +35,8 @@
             <div class="products-status-wrapper flex-row align-items-center">
               <div class="status-title">目标: {{ targetProductNames.length }}个</div>
               <div>
-                <v-chip-group>
-                  <v-chip v-for="name in targetProductNames" :key="name">
+                <v-chip-group column>
+                  <v-chip v-for="name in targetProductNames" :key="name" close @click:close="toggleTarget(name)">
                     {{ name }}
                   </v-chip>
                 </v-chip-group>
@@ -169,7 +169,8 @@ import Instructions from './Instructions';
 export default {
   components: { ProductItem, ProductDetailModal, Instructions },
   data: () => ({
-    defaultPanelStatus: [0, 1, 2],
+    defaultPanelStatus: [0, 1, 2], // 默认展开的panels
+    productTypes: ['p0', 'p1', 'p2', 'p3', 'p4'], // 行星产物类型
     planetResources: planetResources,
     hiddenSections: {}, // 隐藏的类型, p1: true,
     productStatus: {}, // 所有产物状态, name: Object
@@ -244,10 +245,8 @@ export default {
       let res = {};
       // 记录满足条件的产物, name: true/false
       let satisfiedProducts = {}; 
-      // 遍历产品
-      const productTypes = ['p0', 'p1', 'p2', 'p3', 'p4'];
       // 从p0开始遍历产品
-      for (let type of productTypes) {
+      for (let type of this.productTypes) {
         const resourceType = planetResources[type];
         for (let item of resourceType.items) {
           // 默认设置statusObj
@@ -272,35 +271,34 @@ export default {
               ...item.statusObj,
               targeted: true,
             });
-          } else {
-            // 尝试搜索当前产物的from是否被满足。
-            // 因为当前产物的依赖必然来自底层，所以已经被处理过
-            if (item.from) {
-              for (let fromItem of item.from) {
-                const satisfied = this.ownedProducts[fromItem.name] || satisfiedProducts[fromItem.name];
-                // 处理from产物
-                fromItem.satisfied = satisfied;
-                fromItem.unsatisfied = !satisfied;
-              }
-              // 统计满足条件的产物数
-              const countSatisfied = item.from.filter(p => p.satisfied).length;
-              this.$set(item, 'statusObj', {
-                ...item.statusObj,
-                satisfied: countSatisfied === item.from.length, // 全都满足
-                unsatisfied: countSatisfied === 0, // 没有一个满足
-                partial: countSatisfied > 0 && countSatisfied < item.from.length, // 部分满足
-              });
-              if (countSatisfied === item.from.length) {
-                // 前置都满足，标记当前产物满足
-                satisfiedProducts[item.name] = true;
-              }
-            } else {
-              // 非owned p0没有from, 设置本身unsatisfied
-              this.$set(item, 'statusObj', {
-                ...item.statusObj,
-                unsatisfied: true,
-              });
+          }
+          // 尝试搜索当前产物的from是否被满足。
+          // 因为当前产物的依赖必然来自底层，所以已经被处理过
+          if (item.from) {
+            for (let fromItem of item.from) {
+              const satisfied = this.ownedProducts[fromItem.name];
+              // 处理from产物
+              fromItem.satisfied = satisfied;
+              // fromItem.unsatisfied = !satisfied;
             }
+            // 统计满足条件的产物数
+            const countSatisfied = item.from.filter(p => p.satisfied).length;
+            this.$set(item, 'statusObj', {
+              ...item.statusObj,
+              satisfied: countSatisfied === item.from.length, // 全都满足
+              unsatisfied: countSatisfied === 0, // 没有一个满足
+              partial: countSatisfied > 0 && countSatisfied < item.from.length, // 部分满足
+            });
+            if (countSatisfied === item.from.length) {
+              // 前置都满足，标记当前产物满足
+              satisfiedProducts[item.name] = true;
+            }
+          } else {
+            // 非owned p0没有from, 设置本身unsatisfied
+            this.$set(item, 'statusObj', {
+              ...item.statusObj,
+              unsatisfied: true,
+            });
           }
           // 把item加到结果中
           this.$set(res, item.name, item);
@@ -321,7 +319,7 @@ export default {
         // 遍历前置
         if (product.from) {
           for (let item of product.from) {
-            item.satisfied = satisfiedProducts[item.name];
+            item.satisfied = this.ownedProducts[item.name] || satisfiedProducts[item.name];
             // 如果item不在现有产物中，则加到列表里继续循环
             if (!this.ownedProducts[item.name]) {
               requiredProductNames.push(item.name);
@@ -352,6 +350,7 @@ export default {
   .products-status-wrapper {
     .status-title {
       padding: 0 1rem;
+      white-space: nowrap;
     }
   }
   .resource-content-wrapper {
@@ -392,6 +391,6 @@ export default {
 }
 .targeted {
   border-color: purple;
-  color: purple;
+  // color: purple;
 }
 </style>
