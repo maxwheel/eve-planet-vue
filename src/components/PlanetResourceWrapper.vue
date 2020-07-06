@@ -2,6 +2,7 @@
   <v-container class="planet-resources-wrapper">
     <v-row class="mode-select-wrapper flex-column">
       <h1>行星制造产物管理</h1>
+      <p>v0.1</p>
     </v-row>
     <v-row>
       <v-expansion-panels accordion multiple v-model="defaultPanelStatus">
@@ -77,7 +78,7 @@
                     v-for="item in planetResources.p3.items"
                     :key="item.name"
                     :item="item"
-                    @highlight-product="highlightRelatedItems($even.namet)"
+                    @highlight-product="highlightRelatedItems($event.name)"
                     @show-product-detail="showProductDetail($event)"
                     @toggle-owned="toggleOwned($event.name)"
                     @toggle-target="toggleTarget($event.name)"
