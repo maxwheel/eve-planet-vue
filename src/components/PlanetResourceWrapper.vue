@@ -146,7 +146,7 @@
             <Instructions />
           </v-expansion-panel-content>
         </v-expansion-panel>
-      </v-expansion-panels>      
+      </v-expansion-panels>
     </v-row>
     <!-- modal -->
     <v-overlay :value="isDetailModalShown">
@@ -391,7 +391,7 @@ export default {
   color: blue;
 }
 .targeted {
-  border-color: purple;
+  border-color: purple !important;
   // color: purple;
 }
 </style>
