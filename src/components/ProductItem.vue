@@ -39,7 +39,7 @@ export default {
   border: 1px solid grey;
   border-radius: 6px;
   .product-name {
-    padding: 0.5rem;
+    padding: 0.25rem 0.5rem;
     width: 100%;
     text-align: center;
     font-size: 12px;

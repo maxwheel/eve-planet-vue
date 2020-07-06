@@ -1,5 +1,8 @@
 # eve-planet-vue
 
+## Website
+see [https://maxwheel.github.io/eve-planet-vue/](https://maxwheel.github.io/eve-planet-vue/)
+
 ## Project setup
 ```
 npm install
