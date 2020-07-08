@@ -1,8 +1,8 @@
 <template>
   <v-container class="planet-resources-wrapper">
     <v-row class="mode-select-wrapper flex-column">
-      <h1>行星制造产物管理</h1>
-      <p>v0.1</p>
+      <h1>行星制造产物规划</h1>
+      <p>{{ version }}</p>
     </v-row>
     <v-row>
       <v-expansion-panels accordion multiple v-model="defaultPanelStatus">
@@ -12,7 +12,7 @@
           <v-expansion-panel-content>
             <!-- 已有 -->
             <div class="products-status-wrapper flex-row align-items-center">
-              <div class="status-title">已有: {{ ownedProductNames.length }}个</div>
+              <div class="status-title" title="设定已经拥有的产物">已有: {{ ownedProductNames.length }}个</div>
               <div>
                 <v-chip-group column>
                   <v-chip v-for="name in ownedProductNames" :key="name" close @click:close="toggleOwned(name)">
@@ -23,7 +23,7 @@
             </div>
             <!-- 可造 -->
             <div class="products-status-wrapper flex-row align-items-center">
-              <div class="status-title">可造: {{ satisfiedProductNames.length }}个</div>
+              <div class="status-title" title="根据已经拥有的产物可以制造的新产物">可造: {{ satisfiedProductNames.length }}个</div>
               <div>
                 <v-chip-group column>
                   <v-chip v-for="name in satisfiedProductNames" :key="name">
@@ -34,7 +34,7 @@
             </div>
             <!-- 目标 -->
             <div class="products-status-wrapper flex-row align-items-center">
-              <div class="status-title">目标: {{ targetProductNames.length }}个</div>
+              <div class="status-title" title="打算制造的产物">目标: {{ targetProductNames.length }}个</div>
               <div>
                 <v-chip-group column>
                   <v-chip v-for="name in targetProductNames" :key="name" close @click:close="toggleTarget(name)">
@@ -44,7 +44,16 @@
               </div>
             </div>
             <!-- 仍需要 -->
-            <div class="products-status-wrapper flex-row align-items-center"></div>
+            <div class="products-status-wrapper flex-row align-items-center">
+              <div class="status-title" title="要达到目标仍然需要的前置产物">需要: {{ requiredProducts.length }}个</div>
+              <div>
+                <v-chip-group column>
+                  <v-chip v-for="item in requiredProducts" :key="item.name">
+                    <span :class="item.class">{{ item.name }}</span>
+                  </v-chip>
+                </v-chip-group>
+              </div>
+            </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
         <!-- 产物图 -->
@@ -96,6 +105,7 @@ import * as d3 from 'd3';
 export default {
   components: { ProductItem, ProductDetailModal, Instructions },
   data: () => ({
+    version: "v0.2", // 程序版本
     defaultPanelStatus: [0, 1, 2], // 默认展开的panels
     productTypes: ['p0', 'p1', 'p2', 'p3', 'p4'], // 行星产物类型
     planetResources: planetResources,
@@ -123,6 +133,24 @@ export default {
     satisfiedProductNames() {
       return Object.keys(this.satisfiedProducts).filter(p => this.satisfiedProducts[p]);
     },
+    requiredProducts() {
+      let res = [];
+      for (let name in this.productStatus) {
+        const item = this.productStatus[name];
+        const { required, targeted, satisfied, unsatisfied, partial } = item.statusObj || {};
+        if (required && !targeted) {
+          res.push({
+            name,
+            class: {
+              satisfied,
+              unsatisfied,
+              partial,
+            }
+          })
+        }
+      }
+      return res;
+    }
   },
   mounted() {
     this.updateProductStatus();

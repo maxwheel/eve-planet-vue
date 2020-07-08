@@ -1,4 +1,5 @@
 # eve-planet-vue
+中文：EVE行星产物制造规划
 
 ## Website
 see [https://maxwheel.github.io/eve-planet-vue/](https://maxwheel.github.io/eve-planet-vue/)

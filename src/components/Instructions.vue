@@ -14,12 +14,18 @@
     <div class="instruction">
       <h3>产物图示</h3>
       <div>
-        <div class="satisfied">满足前置条件，可生产</div>
-        <div class="required unsatisfied">尚缺乏的</div>
-        <div class="partial">部分满足建造条件的</div>
-        <div class="owned">已有的</div>
-        <div><span class="targeted" style="border-width: 1px; border-style: solid">建造目标</span></div>
-        <div class="highlighted"><span>与点击产物相关的</span></div>
+        <div class="satisfied">满足前置条件，可生产的产物</div>
+        <div class="required unsatisfied">尚缺乏的、无法建造的产物</div>
+        <div class="partial">部分满足建造条件的产物</div>
+        <div class="owned">已拥有的产物</div>
+        <div>
+          <span class="targeted" style="border-top-width: 1px; border-bottom-width: 1px; border-style: solid; border-radius: 6px; padding: 0 6px;">设定的目标产物</span>
+        </div>
+        <div>
+          <span class="highlighted" style="border-top-width: 1px; border-bottom-width: 1px; border-style: solid; border-radius: 6px; padding: 0 6px;">
+            <span>高亮的相关产物</span>
+          </span>
+        </div>
       </div>
     </div>
   </div>
