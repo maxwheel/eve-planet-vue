@@ -45,7 +45,6 @@
             </div>
             <!-- 仍需要 -->
             <div class="products-status-wrapper flex-row align-items-center"></div>
-
           </v-expansion-panel-content>
         </v-expansion-panel>
         <!-- 产物图 -->
@@ -53,12 +52,12 @@
           <v-expansion-panel-header>详情</v-expansion-panel-header>
           <v-expansion-panel-content>
             <div class="resource-content-wrapper flex-row width-100">
-              <!-- p4 -->
-              <div class="products-level-wrapper">
-                <div>P4</div>
+              <!-- 循环产物 -->
+              <div class="products-level-wrapper" v-for="type in productTypesReversed" :key="type">
+                <div style="text-transform: capitalize">{{ type }}</div>
                 <div class="products-level-container">
                   <ProductItem
-                    v-for="item in planetResources.p4.items"
+                    v-for="item in planetResources[type].items"
                     :key="item.name"
                     :item="item"
                     @highlight-product="highlightRelatedItems($event.name)"
@@ -70,72 +69,6 @@
               </div>
               <!-- 留空为连线 -->
               <div class="products-level-interval"></div>
-              <!-- p3 -->
-              <div class="products-level-wrapper">
-                <div>P3</div>
-                <div class="products-level-container">
-                  <ProductItem
-                    v-for="item in planetResources.p3.items"
-                    :key="item.name"
-                    :item="item"
-                    @highlight-product="highlightRelatedItems($event.name)"
-                    @show-product-detail="showProductDetail($event)"
-                    @toggle-owned="toggleOwned($event.name)"
-                    @toggle-target="toggleTarget($event.name)"
-                  />
-                </div>
-              </div>
-              <!-- 留空为连线 -->
-              <div class="products-level-interval"></div>
-              <!-- p2 -->
-              <div class="products-level-wrapper">
-                <div>P2</div>
-                <div class="products-level-container">
-                  <ProductItem
-                    v-for="item in planetResources.p2.items"
-                    :key="item.name"
-                    :item="item"
-                    @highlight-product="highlightRelatedItems($event.name)"
-                    @show-product-detail="showProductDetail($event)"
-                    @toggle-owned="toggleOwned($event.name)"
-                    @toggle-target="toggleTarget($event.name)"
-                  />
-                </div>
-              </div>
-              <!-- 留空为连线 -->
-              <div class="products-level-interval"></div>
-              <!-- p1 -->
-              <div class="products-level-wrapper">
-                <div>P1</div>
-                <div class="products-level-container">
-                  <ProductItem
-                    v-for="item in planetResources.p1.items"
-                    :key="item.name"
-                    :item="item"
-                    @highlight-product="highlightRelatedItems($event.name)"
-                    @show-product-detail="showProductDetail($event)"
-                    @toggle-owned="toggleOwned($event.name)"
-                    @toggle-target="toggleTarget($event.name)"
-                  />
-                </div>
-              </div>
-              <!-- 留空为连线 -->
-              <div class="products-level-interval"></div>
-              <!-- p0 -->
-              <div class="products-level-wrapper">
-                <div>P0</div>
-                <div class="products-level-container">
-                  <ProductItem
-                    v-for="item in planetResources.p0.items"
-                    :key="item.name"
-                    :item="item"
-                    @highlight-product="highlightRelatedItems($event.name)"
-                    @show-product-detail="showProductDetail($event)"
-                    @toggle-owned="toggleOwned($event.name)"
-                    @toggle-target="toggleTarget($event.name)"
-                  />
-                </div>
-              </div>
             </div>
           </v-expansion-panel-content>
         </v-expansion-panel>
@@ -149,15 +82,7 @@
       </v-expansion-panels>
     </v-row>
     <!-- modal -->
-    <v-overlay :value="isDetailModalShown">
-      <ProductDetailModal :product="detailedProduct" />
-      <v-btn
-        icon
-        @click="isDetailModalShown=false"
-      >
-        <v-icon color="error">mdi-close</v-icon>
-      </v-btn>
-    </v-overlay>
+    <ProductDetailModal :product="detailedProduct" :show.sync="isDetailModalShown" />
   </v-container>
 </template>
 
@@ -166,6 +91,7 @@ import { planetResources } from '../utils/planetReources';
 import ProductItem from './ProductItem';
 import ProductDetailModal from './ProductDetailModal';
 import Instructions from './Instructions';
+import * as d3 from 'd3';
 
 export default {
   components: { ProductItem, ProductDetailModal, Instructions },
@@ -185,6 +111,9 @@ export default {
     isDetailModalShown: false, // 是否显示modal详情
   }),
   computed: {
+    productTypesReversed() {
+      return Object.assign([], this.productTypes).reverse();
+    },
     ownedProductNames() {
       return Object.keys(this.ownedProducts).filter(p => this.ownedProducts[p]);
     },
@@ -332,8 +261,160 @@ export default {
       }
       // 返回
       this.productStatus = res;
-      // 强制刷新
-      // this.$forceUpdate();
+      // 准备划线
+      this.$nextTick(() => {
+        // let pos = document.getElementsByClassName('resource-content-wrapper')[0].getBoundingClientRect();
+        // this.drawALineBetween(document.getElementById('生物燃料'), document.getElementById('微生物'), pos);
+        // this.drawALineBetween(document.getElementById('无菌管道'), document.getElementById('水'), pos);
+        this.drawLines();
+      });
+    },
+    // 连线部分
+    // 获取div的左中点坐标
+    getDivLeftCenter(div) {
+      const pos1 = div.getBoundingClientRect();
+      // 左上点坐标
+      let res = {
+        x: pos1.left + Math.max(div.scrollLeft, document.body.scrollLeft) - div.clientLeft,
+        y: pos1.top + Math.max(div.scrollTop, document.body.scrollTop) - div.clientTop,
+      };
+      // 加上1/2高度
+      res.y += pos1.height / 2;
+      return res;
+    },
+    // 获取div的右中点坐标
+    getDivRightCenter(div) {
+      const pos1 = div.getBoundingClientRect();
+      // 左上点坐标
+      let res = {
+        x: pos1.left + Math.max(div.scrollLeft, document.body.scrollLeft) - div.clientLeft,
+        y: pos1.top + Math.max(div.scrollTop, document.body.scrollTop) - div.clientTop,
+      };
+      // 加上div宽度
+      res.x += pos1.width;
+      // 加上1/2高度
+      res.y += pos1.height / 2;
+      return res;
+    },
+    // 连线
+    drawLines() {
+      // 删除所有连线
+      document.querySelectorAll('.resource-content-wrapper > svg').forEach(d => d.remove());
+      // 获取 resource-content-wrapper 作为相对位置
+      let dom = document.getElementsByClassName('resource-content-wrapper');
+      if (!dom) return; // 确保wrapper存在
+      dom = dom[0];
+      if (!dom.getBoundingClientRect) return; // 确保方法存在
+      const relativePos = dom.getBoundingClientRect();
+      for (let fromName in this.productStatus) {
+        const fromProd = this.productStatus[fromName];
+        // 高亮和目的相关的才需划线
+        const {
+          satisfied: fromSatisfied,
+          unsatisfied: fromUnsatisfied,
+          required: fromRequired,
+          partial: fromPartial,
+          highlighted: fromHighlighted,
+          targeted: fromTargeted,
+        } = fromProd.statusObj || {};
+        // 左节点满足这些情况才需划线
+        const needToDrawLeft = fromSatisfied ||
+          (fromUnsatisfied && fromRequired) ||
+          fromPartial ||
+          fromHighlighted ||
+          fromTargeted;
+        if (needToDrawLeft && fromProd.from) {
+          for (let to of fromProd.from) {
+            const toName = to.name;
+            const toProd = this.productStatus[toName];
+            const {
+              satisfied: toSatisfied,
+              unsatisfied: toUnsatisfied,
+              required: toRequired,
+              partial: toPartial,
+              highlighted: toHighlighted,
+              owned: toOwned,
+            } = toProd.statusObj || {};
+            // 线条颜色
+            let color = 'grey'; // 默认灰色
+            if (toSatisfied) {
+              color = 'darkgreen'
+            } else if (toOwned) {
+              color = 'blue';
+            } else if (toPartial) {
+              color = 'orange';
+            } else if (toRequired && toUnsatisfied) {
+              color = 'red';
+            }
+            // 宽度
+            let strokeWidth = '1px';
+            if (fromHighlighted && toHighlighted) {
+              strokeWidth = '3px';
+            }
+            // 右边节点满足条件
+            const needToDrawRight = toSatisfied ||
+              (toUnsatisfied && toRequired) ||
+              toOwned ||
+              toSatisfied ||
+              toHighlighted ||
+              toPartial;
+            // 画线
+            if (needToDrawRight) {
+              this.drawALineBetween(document.getElementById(fromName), document.getElementById(toName), relativePos, color, strokeWidth);
+            }
+          }
+        }
+      }
+    },
+    // 从dev1的右中连线至div2的左中
+    drawALineBetween(div1, div2, relativePos = {x: 0, y: 0}, color="black", strokeWidth = '1px') {
+      if (!div1 || !div2 || !div1.getBoundingClientRect) return;
+      // console.log('drawALineBetween', div1, div2);
+      const fromPoint = this.getDivRightCenter(div1);
+      const toPoint = this.getDivLeftCenter(div2);
+      const newId = `id-${div1.id}-${div2.id}`;
+      let svg = d3.select(`#${newId} line`);
+      // console.log("div1 pos:", fromPoint.x, fromPoint.y);
+      // console.log("div2 pos:", fromPoint.x, fromPoint.y);
+      // console.log("rel pos:", relativePos.x, relativePos.y);
+      if (!document.getElementById(newId)) {
+        const width = toPoint.x - fromPoint.x;
+        const height = Math.abs(toPoint.y - fromPoint.y);
+        // from DIV比较高时
+        const svgPosition = {
+          left: fromPoint.x - relativePos.x,
+          top: fromPoint.y - relativePos.y,
+        };
+        const linePosition = {
+          start: { x: 1, y: 0 },
+          end: { x: width - 1, y: height}
+        }
+        // 如果to DIV比较高
+        if (fromPoint.y > toPoint.y) {
+          svgPosition.top = toPoint.y - relativePos.y;
+          linePosition.start.y = height;
+          linePosition.end.y = 0;
+        }
+        svg = d3
+          .select('.resource-content-wrapper')
+          .append('svg')
+          .attr('id', newId)
+          .attr('width', width)
+          .attr('height', Math.max(height, 3)) // 保留至少3px高度，防止同一层的情况
+          .style('position', 'absolute')
+          .style('left', svgPosition.left)
+          .style('top', svgPosition.top)
+          .append("line")
+          .attr("x1", linePosition.start.x)
+          .attr("y1", linePosition.start.y)
+          .attr("x2", linePosition.end.x)
+          .attr("y2", linePosition.end.y)
+      }
+      // 颜色和宽度
+      svg
+        .attr("stroke", color)
+        .attr("stroke-width", strokeWidth);
+      // return svg;
     }
   }
 }
@@ -355,6 +436,7 @@ export default {
     }
   }
   .resource-content-wrapper {
+    position: relative;
     .products-level-wrapper {
       border-left: 1px dashed black;
       border-right: 1px dashed black;
@@ -377,7 +459,8 @@ export default {
   color: red;
 }
 .highlighted {
-  border-width: 3px;
+  border-left-width: 3px;
+  border-right-width: 3px;
   * {
     font-weight: bold;
   }
@@ -392,6 +475,8 @@ export default {
 }
 .targeted {
   border-color: purple !important;
+  border-left-width: 3px;
+  border-right-width: 3px;
   // color: purple;
 }
 </style>

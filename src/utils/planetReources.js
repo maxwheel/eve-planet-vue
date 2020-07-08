@@ -29,51 +29,51 @@ export const planetResources = {
     name: '行星原材料',
     items: [
       {
+        name: '碳化合物',
+        fromPlanet: ['贫瘠', '海洋', '温和'],
+      }, {
+        name: '微生物',
+        fromPlanet: ['冰体', '贫瘠', '海洋', '温和'],
+      }, {
+        name: '贵金属',
+        fromPlanet: ['贫瘠', '等离子'],
+      }, {
+        name: '重金属',
+        fromPlanet: ['熔岩', '等离子', '冰体'],
+      }, {
+        name: '稀有气体',
+        fromPlanet: ['冰体', '风暴', '气体'],
+      }, {
+        name: '活性气体',
+        fromPlanet: ['气体'],
+      }, {
         name: '基础金属',
         fromPlanet: ['贫瘠', '熔岩', '风暴', '等离子', '气体'],
       }, {
+        name: '长英矿物岩浆',
+        fromPlanet: ['熔岩'],
+      }, {
+        name: '离子溶液',
+        fromPlanet: ['风暴', '气体'],
+      }, {
+        name: '悬浮等离子',
+        fromPlanet: ['熔岩', '风暴', '等离子'],
+      }, {
+        name: '水基液体',
+        fromPlanet: ['海洋', '贫瘠', '风暴', '温和', '冰体', '气体'],
+      }, {
         name: '浮游生物群',
         fromPlanet: ['海洋', '冰体'],
+      }, {
+        name: '复杂有机生命体',
+        fromPlanet: ['温和', '海洋'],
       }, {
         name: '自养生物',
         fromPlanet: ['温和'],
       }, {
         name: '非立方晶体',
         fromPlanet: ['等离子', '熔岩'],
-      }, {
-        name: '悬浮等离子',
-        fromPlanet: ['熔岩', '风暴', '等离子'],
-      }, {
-        name: '离子溶液',
-        fromPlanet: ['风暴', '气体'],
-      }, {
-        name: '微生物',
-        fromPlanet: ['冰体', '贫瘠', '海洋', '温和'],
-      }, {
-        name: '水基液体',
-        fromPlanet: ['海洋', '贫瘠', '风暴', '温和', '冰体', '气体'],
-      }, {
-        name: '重金属',
-        fromPlanet: ['熔岩', '等离子', '冰体'],
-      }, {
-        name: '碳化合物',
-        fromPlanet: ['贫瘠', '海洋', '温和'],
-      }, {
-        name: '长英矿物岩浆',
-        fromPlanet: ['熔岩'],
-      }, {
-        name: '活性气体',
-        fromPlanet: ['气体'],
-      }, {
-        name: '贵金属',
-        fromPlanet: ['贫瘠', '等离子'],
-      }, {
-        name: '复杂有机生命体',
-        fromPlanet: ['温和', '海洋'],
-      }, {
-        name: '稀有气体',
-        fromPlanet: ['冰体', '风暴', '气体'],
-      },
+      }, 
     ]
   },
   p1: {

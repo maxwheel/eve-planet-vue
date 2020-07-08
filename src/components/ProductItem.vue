@@ -3,12 +3,12 @@
     v-if="item"
     class="product-item flex-row"
     :class="item.statusObj"
-    @click.exact="$emit('highlight-product', item)"
-    @click.right.exact.prevent="$emit('show-product-detail', item)"
-    @click.ctrl.exact="$emit('toggle-owned', item)"
-    @click.alt.exact="$emit('toggle-target', item)"
+    @click.exact.stop="$emit('highlight-product', item)"
+    @click.right.exact.stop.prevent="$emit('show-product-detail', item)"
+    @click.ctrl.exact.stop="$emit('toggle-owned', item)"
+    @click.alt.exact.stop="$emit('toggle-target', item)"
   >
-    <div class="product-name">
+    <div class="product-name" :id="item.name">
       <span>{{ item.name }}</span>
     </div>
     <!-- <div class="product-from flex-row" v-if="item.from">
@@ -38,6 +38,8 @@ export default {
   margin: 0.25rem 0.5rem;
   border: 1px solid grey;
   border-radius: 6px;
+  background-color: white;
+  z-index: 1; // 把产物放到连线上层
   .product-name {
     padding: 0.25rem 0.5rem;
     width: 100%;
